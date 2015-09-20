@@ -9,12 +9,14 @@ from io import BytesIO
 from urllib.request import urlopen
 from zipfile import ZipFile
 
+names_db_location = "public_html/names.db"
+
 try:
-	os.unlink("names.db")
+	os.unlink(names_db_location)
 except FileNotFoundError:
 	pass
 
-db = sqlite3.connect("names.db")
+db = sqlite3.connect(names_db_location)
 db.execute("CREATE TABLE names (year INTEGER, name TEXT, gender INTEGER, rank INTEGER, occurances INTEGER)")
 
 if len(sys.argv) > 1:
