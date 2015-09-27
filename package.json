@@ -9,6 +9,7 @@
   "author": "Josh Watzman",
   "license": "BSD-3-Clause",
   "dependencies": {
+    "chart.js": "^1.0.2",
     "sql.js": "^0.2.21"
   }
 }
