@@ -7,26 +7,15 @@ xhr.onload = function (e) {
 	var db = new SQL.Database(uInt8Array);
 	window.db = db;
 
-	var v = db.exec('SELECT year,rank FROM names WHERE name = "Joshua" AND gender = 1 ORDER BY year ASC;')[0].values;
-	var labels = [];
-	var data = [];
-	v.forEach(function(val) {
-		labels.push(val[0]);
-		data.push(val[1]);
-	});
-
-	var ctx = document.getElementById("chart").getContext("2d");
-	var chart = new Chart(ctx).Bar({
-		labels: labels,
-		datasets: [
-			{
-				label: 'Boys named Joshua',
-				data: data
-			}
-		]
-	}, {
-		barValueSpacing: 0,
-		barDatasetSpacing: 0
-	});
+	google.load('visualization', '1', {'packages':['corechart'], 'callback': function () {
+		var v = db.exec('SELECT year,rank FROM names WHERE name = "Joshua" AND gender = 1 ORDER BY year ASC;')[0].values;
+		var data = new google.visualization.DataTable();
+		data.addColumn('number', 'Year');
+		data.addColumn('number', 'Rank');
+		data.addRows(v);
+		var options = {'title': 'Boys named Joshua', 'vAxis': {direction: -1}, 'hAxis': {format: ''}};
+		var chart = new google.visualization.LineChart(document.getElementById('gchart'));
+		chart.draw(data, options);
+	}});
 };
 xhr.send();
