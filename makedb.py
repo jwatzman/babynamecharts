@@ -53,5 +53,8 @@ for name in zipobj.namelist():
 
 			db.execute("INSERT INTO names VALUES (?, ?, ?, ?, ?)", (year, name, gender, rank, occurances))
 
+print("Indexing...")
+db.execute("CREATE INDEX idx_name ON names(name);");
+
 db.commit()
 db.close()
