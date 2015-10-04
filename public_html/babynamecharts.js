@@ -1,7 +1,8 @@
 (function () {
 
 var db = null;
-var chart = null;
+var name_chart = null;
+var year_chart = null;
 
 function init() {
 	var xhr = new XMLHttpRequest();
@@ -12,10 +13,10 @@ function init() {
 		var uInt8Array = new Uint8Array(this.response);
 		db = new SQL.Database(uInt8Array);
 
-		chart = new Highcharts.Chart({
+		name_chart = new Highcharts.Chart({
 			chart: {
 				type: 'line',
-				renderTo: 'chart',
+				renderTo: 'name_chart',
 				zoomType: 'x'
 			},
 			tooltip: {
@@ -66,12 +67,42 @@ function init() {
 			}]
 		});
 
+		year_chart = new Highcharts.Chart({
+			chart: {
+				type: 'column',
+				renderTo: 'year_chart'
+			},
+			series: [{
+				name: 'Absolute Number'
+			}],
+			title: {
+				text: 'Ready!'
+			},
+			xAxis: {
+				type: 'category'
+			},
+			yAxis: {
+				title: {
+					text: 'Absolute Number'
+				}
+			}
+		});
+
 		var name_form = document.getElementById('name_form');
 		name_form.addEventListener("submit", function (e) {
 			e.preventDefault();
 			search_by_name(
 				name_form.elements.name.value,
 				name_form.elements.gender.value === "boys"
+			);
+		});
+
+		var year_form = document.getElementById('year_form');
+		year_form.addEventListener("submit", function (e) {
+			e.preventDefault();
+			search_by_year(
+				year_form.elements.year.value,
+				year_form.elements.gender.value === "boys"
 			);
 		});
 	};
@@ -99,9 +130,30 @@ function search_by_name(name, gender) {
 	stmt.free();
 
 	var gender_text = gender ? 'Boys' : 'Girls';
-	chart.series[0].setData(rank_data);
-	chart.series[1].setData(occurances_data);
-	chart.setTitle({text: gender_text + ' named ' + name});
+	name_chart.series[0].setData(rank_data);
+	name_chart.series[1].setData(occurances_data);
+	name_chart.setTitle({text: gender_text + ' named ' + name});
+}
+
+function search_by_year(year, gender) {
+	var query =
+		'SELECT name,occurances FROM names '+
+		'WHERE year = :year AND gender = :gender '+
+		'ORDER BY rank ASC LIMIT 50;';
+
+	var stmt = db.prepare(query);
+	stmt.bind({':year': year, ':gender': gender});
+
+	var data  = [];
+	while (stmt.step()) {
+		data.push(stmt.get());
+	}
+
+	stmt.free();
+
+	var gender_text = gender ? 'Boys' : 'Girls';
+	year_chart.series[0].setData(data);
+	year_chart.setTitle({text: 'Top 50 ' + gender_text + ' from ' + year});
 }
 
 init();

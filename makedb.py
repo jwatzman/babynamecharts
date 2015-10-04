@@ -55,6 +55,7 @@ for name in zipobj.namelist():
 
 print("Indexing...")
 db.execute("CREATE INDEX idx_name ON names(name);");
+db.execute("CREATE INDEX idx_year ON names(year);");
 
 db.commit()
 db.close()
