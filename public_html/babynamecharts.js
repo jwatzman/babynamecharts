@@ -18,8 +18,15 @@ function init() {
 				renderTo: 'chart',
 				zoomType: 'x'
 			},
+			tooltip: {
+				shared: true
+			},
 			series: [{
-				name: 'Rank'
+				name: 'Rank',
+				yAxis: 0
+			}, {
+				name: 'Absolute Number',
+				yAxis: 1
 			}],
 			title: {
 				text: 'Ready!'
@@ -27,14 +34,36 @@ function init() {
 			xAxis: {
 				minTickInterval: 1
 			},
-			yAxis: {
-				reversed: true,
+			yAxis: [{
+				labels: {
+					style: {
+						color: Highcharts.getOptions().colors[0]
+					}
+				},
 				min: 0,
 				minTickInterval: 1,
+				reversed: true,
 				title: {
+					style: {
+						color: Highcharts.getOptions().colors[0]
+					},
 					text: 'Rank'
 				}
-			}
+			}, {
+				labels: {
+					style: {
+						color: Highcharts.getOptions().colors[1]
+					}
+				},
+				min: 0,
+				opposite: true,
+				title: {
+					style: {
+						color: Highcharts.getOptions().colors[1]
+					},
+					text: 'Absolute Number'
+				}
+			}]
 		});
 
 		var name_form = document.getElementById('name_form');
@@ -52,22 +81,26 @@ function init() {
 
 function search_by_name(name, gender) {
 	var query =
-		'SELECT year,rank FROM names '+
+		'SELECT year,rank,occurances FROM names '+
 		'WHERE name = :name AND gender = :gender '+
 		'ORDER BY year ASC;';
 
 	var stmt = db.prepare(query);
 	stmt.bind({':name': name, ':gender': gender});
 
-	var data = []
+	var rank_data = [];
+	var occurances_data = [];
 	while (stmt.step()) {
-		data.push(stmt.get());
+		var row = stmt.get();
+		rank_data.push([row[0], row[1]]);
+		occurances_data.push([row[0], row[2]]);
 	}
 
 	stmt.free();
 
 	var gender_text = gender ? 'Boys' : 'Girls';
-	chart.series[0].setData(data);
+	chart.series[0].setData(rank_data);
+	chart.series[1].setData(occurances_data);
 	chart.setTitle({text: gender_text + ' named ' + name});
 }
 
