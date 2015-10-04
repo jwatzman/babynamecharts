@@ -1,38 +1,66 @@
-var xhr = new XMLHttpRequest();
-xhr.open('GET', 'names.db', true);
-xhr.responseType = 'arraybuffer';
+(function () {
 
-xhr.onload = function (e) {
-	var uInt8Array = new Uint8Array(this.response);
-	var db = new SQL.Database(uInt8Array);
-	window.db = db;
+var db = null;
+var chart = null;
 
-	var v = db.exec('SELECT year,rank FROM names WHERE name = "Joshua" AND gender = 1 ORDER BY year ASC;')[0].values;
+function init() {
+	var xhr = new XMLHttpRequest();
+	xhr.open('GET', 'names.db', true);
+	xhr.responseType = 'arraybuffer';
 
-	var chart = new Highcharts.Chart({
-		chart: {
-			type: 'line',
-			renderTo: 'chart',
-			zoomType: 'x'
-		},
-		series: [{
-			name: 'Rank',
-			data: v
-		}],
-		title: {
-			text: 'Boys named Joshua',
-		},
-		xAxis: {
-			minTickInterval: 1
-		},
-		yAxis: {
-			reversed: true,
-			min: 0,
-			minTickInterval: 1,
-			title: {
-				text: 'Rank'
+	xhr.onload = function (e) {
+		var uInt8Array = new Uint8Array(this.response);
+		db = new SQL.Database(uInt8Array);
+
+		chart = new Highcharts.Chart({
+			chart: {
+				type: 'line',
+				renderTo: 'chart',
+				zoomType: 'x'
+			},
+			series: [{
+				name: 'Rank'
+			}],
+			xAxis: {
+				minTickInterval: 1
+			},
+			yAxis: {
+				reversed: true,
+				min: 0,
+				minTickInterval: 1,
+				title: {
+					text: 'Rank'
+				}
 			}
-		}
-	});
-};
-xhr.send();
+		});
+
+		search_by_name('Joshua', 1);
+	};
+
+	xhr.send();
+}
+
+function search_by_name(name, gender) {
+	var query =
+		'SELECT year,rank FROM names '+
+		'WHERE name = :name AND gender = :gender '+
+		'ORDER BY year ASC;';
+
+	var stmt = db.prepare(query);
+	stmt.bind({':name': name, ':gender': gender});
+
+	var data = []
+	while (stmt.step()) {
+		data.push(stmt.get());
+	}
+
+	stmt.free();
+
+	var gender_text = gender ? 'Boys' : 'Girls';
+	chart.series[0].setData(data);
+	chart.setTitle({text: gender_text + ' named ' + name});
+}
+
+init();
+
+})();
