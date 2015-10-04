@@ -21,6 +21,9 @@ function init() {
 			series: [{
 				name: 'Rank'
 			}],
+			title: {
+				text: 'Ready!'
+			},
 			xAxis: {
 				minTickInterval: 1
 			},
@@ -34,7 +37,14 @@ function init() {
 			}
 		});
 
-		search_by_name('Joshua', 1);
+		var name_form = document.getElementById('name_form');
+		name_form.addEventListener("submit", function (e) {
+			e.preventDefault();
+			search_by_name(
+				name_form.elements.name.value,
+				name_form.elements.gender.value === "boys"
+			);
+		});
 	};
 
 	xhr.send();
