@@ -1,0 +1,8 @@
+ExpiresActive on
+ExpiresDefault "access 1 day"
+
+RewriteEngine on
+RewriteCond %{HTTP:Accept-Encoding} gzip
+RewriteCond %{REQUEST_FILENAME}.gz -f
+RewriteCond %{PATH_INFO} ^$
+RewriteRule ^(.*)$ $1.gz [L]
