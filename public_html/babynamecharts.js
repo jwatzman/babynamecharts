@@ -15,14 +15,27 @@ function init() {
 
 		name_chart = new Highcharts.Chart({
 			chart: {
-				type: 'line',
+				events: {
+					click: function (e) {
+						search_by_year(
+							Math.round(e.xAxis[0].value),
+							name_chart.gender
+						);
+					}
+				},
 				renderTo: 'name_chart',
+				type: 'line',
 				zoomType: 'x'
 			},
 			tooltip: {
 				shared: true
 			},
 			series: [{
+				events: {
+					click: function (e) {
+						search_by_year(e.point.x, name_chart.gender);
+					}
+				},
 				name: 'Rank',
 				yAxis: 0
 			}, {
@@ -73,6 +86,11 @@ function init() {
 				renderTo: 'year_chart'
 			},
 			series: [{
+				events: {
+					click: function (e) {
+						search_by_name(e.point.name, year_chart.gender);
+					}
+				},
 				name: 'Absolute Number'
 			}],
 			title: {
@@ -133,6 +151,7 @@ function search_by_name(name, gender) {
 	name_chart.series[0].setData(rank_data);
 	name_chart.series[1].setData(occurances_data);
 	name_chart.setTitle({text: gender_text + ' named ' + name});
+	name_chart.gender = gender;
 }
 
 function search_by_year(year, gender) {
@@ -154,6 +173,7 @@ function search_by_year(year, gender) {
 	var gender_text = gender ? 'Boys' : 'Girls';
 	year_chart.series[0].setData(data);
 	year_chart.setTitle({text: 'Top 50 ' + gender_text + ' from ' + year});
+	year_chart.gender = gender;
 }
 
 init();
