@@ -157,7 +157,7 @@ function search_by_name(name, gender) {
 function search_by_year(year, gender) {
 	var query =
 		'SELECT name,occurances FROM names '+
-		'WHERE year = :year AND gender = :gender '+
+		'WHERE year = :year AND gender = :gender AND rank <= 50 '+
 		'ORDER BY rank ASC LIMIT 50;';
 
 	var stmt = db.prepare(query);
