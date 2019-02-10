@@ -9,7 +9,13 @@ from io import BytesIO
 from urllib.request import urlopen
 from zipfile import ZipFile
 
-names_db_location = "public_html/names.db"
+if len(sys.argv) < 2:
+	print("Usage: makedb.py names.zip out.db")
+	sys.exit(2)
+
+zipdata = open(sys.argv[1], "rb").read()
+zipobj = ZipFile(BytesIO(zipdata))
+names_db_location = sys.argv[2]
 
 try:
 	os.unlink(names_db_location)
@@ -18,15 +24,6 @@ except FileNotFoundError:
 
 db = sqlite3.connect(names_db_location)
 db.execute("CREATE TABLE names (year INTEGER, name TEXT, gender INTEGER, rank INTEGER, occurances INTEGER)")
-
-if len(sys.argv) > 1:
-	print("Reading %s..." % (sys.argv[1]))
-	zipdata = open(sys.argv[1], "rb").read()
-else:
-	print("Downloading...")
-	zipdata = urlopen("http://www.ssa.gov/OACT/babynames/names.zip").read()
-
-zipobj = ZipFile(BytesIO(zipdata))
 
 year_re = re.compile("yob(....)\\.txt")
 for name in zipobj.namelist():
