@@ -18,6 +18,9 @@ deploy: public_html/names.db.gz
 	rsync -avz --delete --delete-excluded --exclude=".DS_Store" --exclude="*.swp" --exclude="names.db" public_html/ $(HOST):/home/public/
 
 clean:
-	rm -f names.zip public_html/names.db public_html/names.db.gz public_html/names.db.zst
+	rm -f public_html/names.db public_html/names.db.gz public_html/names.db.zst
+
+veryclean: clean
+	rm -f names.zip
 
 .PHONY: dev deploy clean
